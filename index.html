@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>Raise.it - Polite Remote Collaboration</title>
+
+		<!-- Bootstrap CSS -->
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.1/animate.min.css">
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+		<link rel="stylesheet" href="app.css">
+
+		<!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+		<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+		<!--[if lt IE 9]>
+			<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.2/html5shiv.min.js"></script>
+			<script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+		<![endif]-->
+	</head>
+	<body>
+		<h1 class="text-center">Raise.it</h1>
+
+		<div id="app" class="container">
+			
+			<div id="login-form">
+				<div class="row">
+					<div v-bind:class="narrowMiddle">
+						<form class="form" action="done.html" @submit.prevent="joinRoom">
+							<div class="form-group">
+								<label for="inputRoom">Room ID:</label>
+								<input type="text" name="room" id="inputRoom" class="form-control" required="required" v-model="joinSubmission.room" debounce="500">
+							</div>
+							<div class="form-group">
+								<label for="inputName">Name:</label>
+								<input type="text" name="name" id="inputName" class="form-control" required="required" v-model="joinSubmission.name">
+							</div>
+
+							<button class="btn btn-primary btn-block" @submit.prevent="joinRoom">Join Room</button>
+						</form>	
+					</div>
+				</div>
+			</div>
+
+			<div id="room"> 
+				<h2 class="text-center">You are in room "{{ joinSubmission.room }}"</h2>
+
+				<div id="hand-action" class="row">
+					<div v-bind:class="narrowMiddle">
+						<div class="col-xs-6 text-center">
+							<a @click="doRaiseHand"><i class="fa fa-question-circle"></i></a>
+							<p>Raise Hand</p>
+						</div>
+						<div class="col-xs-6 text-center">
+							<a @click="doLowerHand"><i class="fa fa-times-circle"></i></a>
+							<p>Lower Hand</p>
+						</div>
+					</div>
+				</div>
+				<div id="waiting" class="row">
+					<div v-bind:class="narrowMiddle">
+						<div class="panel panel-primary" id="people">
+							<div class="panel-heading">Current Participants</div>
+							<div class="panel-body">
+								<ul id="people-list">
+									<li v-for="person in room.people">
+										<p v-if="person.waiting" class="waiting">{{person.name}} is waiting. (<a @click="doAcknowledgePerson($key)">Acknowledge</a>)</p>
+										<p v-if="!person.waiting" class="not-waiting">{{person.name}} is not waiting.</p>
+									</li>
+								</ul>	
+							</div>
+						</div>
+
+						<div class="panel panel-primary" id="log">
+							<div class="panel-heading">Room Log</div>
+							<div class="panel-body">
+								<ul id="log-list">
+									<li v-for="action in room.actions | orderBy 'timestamp' -1 | limitBy 10">
+										{{ getFormattedDate(action.timestamp, 'Y-m-d h:i a') }}: {{ action.action }}
+									</li>
+								</ul>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="row">
+					<div v-bind:class="narrowMiddle">
+						<button class="btn btn-primary btn-block" @click="leaveRoom">Leave Room</button>
+					</div>
+				</div>
+			</div>
+
+		</div>
+
+		<!-- jQuery -->
+		<script src="//code.jquery.com/jquery.js"></script>
+		<!-- Bootstrap JavaScript -->
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+		<!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+		<script src="Hello World"></script>
+
+		<!-- date.format -->
+		<script src="date.format.min.js"></script>
+
+		<!-- vue.js -->
+		<script src="http://cdnjs.cloudflare.com/ajax/libs/vue/1.0.16/vue.js"></script>
+
+		<!-- firebase -->
+		<script src="https://cdn.firebase.com/js/client/2.4.1/firebase.js"></script>
+
+		<!-- app -->
+		<script src="app.js"></script>
+	</body>
+</html>

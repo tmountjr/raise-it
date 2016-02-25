@@ -1,0 +1,44 @@
+#login-form {
+	display: block;
+}
+
+#room {
+	display: none;
+}
+
+#hand-action .fa { font-size: 8em; }
+#hand-action .fa:hover { cursor: pointer; }
+
+#hand-action .fa-question-circle { color: #5cb85c; }
+#hand-action .fa-question-circle:hover { color: #449d44; }
+
+#hand-action .fa-times-circle { color: #d9534f; }
+#hand-action .fa-times-circle:hover { color: #c9302c; }
+
+#people-list {
+	list-style-type: none;
+}
+
+#people-list p:before {
+	font-family: FontAwesome;
+	font-weight: normal;
+	font-style: normal;
+	display: inline-block;
+	text-decoration: inherit;
+	padding-right: 10px;
+	font-size: 1.25em;
+	top: 2px;
+	position: relative;
+}
+#people-list p.waiting:before {
+	content: "\f059";
+	color: #5cb85c;
+}
+#people-list p.not-waiting:before {
+	content: "\f057";
+	color: #d9534f;
+}
+
+#people-list p.waiting a {
+	cursor: pointer;
+}
