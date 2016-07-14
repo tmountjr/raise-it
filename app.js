@@ -1,135 +1,141 @@
-var baseUrl = 'https://raise-it.firebaseio.com/rooms';
-var fb_ref = new Firebase(baseUrl);
+var raiseIt = {
+
+    fbConfig: {
+        apiKey: 'AIzaSyBEaiVmq0L-WW3uuOliqYJ3e6stWiCIt_I',
+        authDomain: 'raise-it.firebaseapp.com',
+        databaseURL: 'https://raise-it.firebaseio.com',
+        storageBucket: 'raise-it.appspot.com',
+    },
+
+    currentRoom: {},
+    meRef: {},
+    app: {},
+
+};
 
 (function($) {
 
-	$.fn.extend({
-		animateCss: function (animationName, callback) {
-			var thisID = $(this).attr('id');
-			var animationEnd = 'webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend';
-			$(this).addClass('animated ' + animationName).one(animationEnd, function() {
-				$(this).removeClass('animated ' + animationName);
-				if (callback) callback();
-			});
-		}
-	});
+    firebase.initializeApp(raiseIt.fbConfig);
+    raiseIt.fb_ref = firebase.database().ref().child('rooms');
 
-	var currentRoom,
-		myID,
-		meRef;
+    $.fn.extend({
+        animateCss: function (animationName, callback) {
+            var thisID = $(this).attr('id');
+            var animationEnd = 'webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend';
+            $(this).addClass('animated ' + animationName).one(animationEnd, function() {
+                $(this).removeClass('animated ' + animationName);
+                if (callback) callback();
+            });
+        }
+    });
 
-	Vue.config.debug = true;
+    Vue.config.debug = true;
 
-	var app = new Vue({
-		el: '#app',
+    raiseIt.app = new Vue({
 
-		data: {
-			joinSubmission: {
-				room: '',
-				name: ''
-			},
-			room: {
-				actions: {},
-				people: {}
-			},
-			narrowMiddle: "col-md-4 col-md-offset-4 col-sm-12",
-		},
+        el: '#app',
 
-		methods: {
-			joinRoom: function() {
-				currentRoom = fb_ref.child(this.joinSubmission.room);
+        data: {
+            joinSubmission: {
+                room: '',
+                name: ''
+            },
+            room: {
+                actions: {},
+                people: {}
+            },
+        },
 
-				var myRef = currentRoom.child('people').push({
-					'name': this.joinSubmission.name,
-					'waiting': false
-				}).then(function(s) {
+        methods: {
 
-					// successfully added the user to the room
-					myID = s.toString();
+            joinRoom: function() {
+                raiseIt.currentRoom = raiseIt.fb_ref.child(this.joinSubmission.room);
 
-					meRef = new Firebase(myID);
+                var myRef = raiseIt.currentRoom.child('people').push({
+                    name: this.joinSubmission.name,
+                    waiting: false
+                }).then(function(s) {
+                    // successfully added the user to the room; get the ID
+                    var myID = s.key;
 
-					currentRoom.child('actions').orderByChild('timestamp').on('value', function(s) {
-						app.room.actions = s.val();
-					});
+                    raiseIt.meRef = raiseIt.currentRoom.child('people').child(myID);
 
-					currentRoom.child('people').on('value', function(s) {
-						app.room.people = s.val();
-					});
+                    raiseIt.currentRoom.child('actions').orderByChild('timestamp').on('value', function(s) {
+                        raiseIt.app.room.actions = s.val();
+                    });
 
-					$("#login-form").animateCss('fadeOutUp', function() {
-						$("#login-form").hide();
-						$("#room").show().animateCss('fadeInUp');
-					});
+                    raiseIt.currentRoom.child('people').on('value', function(s) {
+                        raiseIt.app.room.people = s.val();
+                    });
 
-				}, function(error) {
-					console.log(error);
-				});
-			},
+                    $("#login-form").animateCss('fadeOutUp', function() {
+                        $("#login-form").hide();
+                        $("#room").show().animateCss('fadeInUp');
+                    });
+                }, function(error) {
+                    console.error(error);
+                });
+            },
 
-			leaveRoom: function() {
-				new Firebase(myID).remove();
+            leaveRoom: function() {
+                raiseIt.meRef.remove();
 
-				$("#room").animateCss('fadeOutUp', function() {
-					$("#room").hide();
-					$("#login-form").show().animateCss('fadeInUp');
-				});
+                $("#room").animateCss('fadeOutUp', function() {
+                    $("#room").hide();
+                    $("#login-form").show().animateCss('fadeInUp');
+                });
 
-				// last one out, turn off the lights.
-				currentRoom.child('people').orderByKey().once('value', function(s) {
-					if (s.numChildren() == 0) {
-						currentRoom.remove();
-					}
-				});
-			},
+                // last one out, turn off the lights
+                raiseIt.currentRoom.child('people').orderByKey().once('value', function(s) {
+                    if (s.numChildren() == 0) {
+                        raiseIt.currentRoom.remove();
+                    }
+                });
+            },
 
-			doRaiseHand: function() {
-				currentRoom.child('actions').push({
-					action: app.joinSubmission.name + ' raised a hand.',
-					timestamp: new Date().getTime(),
-				});
+            doRaiseHand: function() {
+                raiseIt.currentRoom.child('actions').push({
+                    action: raiseIt.app.joinSubmission.name + ' raised a hand.',
+                    timestamp: new Date().getTime(),
+                });
 
-				meRef.update({
-					'waiting': true
-				});
-			},
+                raiseIt.meRef.update({
+                    waiting: true
+                });
+            },
 
-			doLowerHand: function() {
-				currentRoom.child('actions').push({
-					action: app.joinSubmission.name + ' lowered a hand.',
-					timestamp: new Date().getTime(),
-				});
+            doLowerHand: function() {
+                raiseIt.currentRoom.child('actions').push({
+                    action: raiseIt.app.joinSubmission.name + ' lowered a hand.',
+                    timestamp: new Date().getTime(),
+                });
 
-				meRef.update({
-					'waiting': false
-				});
-			},
+                raiseIt.meRef.update({
+                    waiting: false
+                });
+            },
 
-			doAcknowledgePerson: function(personID) {
-				var getPerson = currentRoom.child('people/' + personID).once('value', function(s) {});
+            doAcknowledgePerson: function(personID) {
+                raiseIt.currentRoom.child('people').child(personID).once('value', function(s) {
 
-				getPerson.then(
-					function(response) {
-						var name = response.val().name;
-						currentRoom.child('actions').push({
-							action: name + ' was acknowledged by ' + app.joinSubmission.name + '.',
-							timestamp: new Date().getTime(),
-						});
+                    var personName = s.val().name;
+                    raiseIt.currentRoom.child('actions').push({
+                        action: personName + ' was acknowledged by ' + raiseIt.app.joinSubmission.name + '.',
+                        timestamp: new Date().getTime(),
+                    });
 
-						currentRoom.child('people/' + personID).update({
-							'waiting': false
-						});
-					},
-					function(error) {
-						console.log(error);
-					}
-				);
-			},
+                    raiseIt.currentRoom.child('people').child(personID).update({
+                        waiting: false
+                    });
 
-			getFormattedDate: function(unixtime, format) {
-				return new Date(unixtime).format(format);
-			}
-		},
-	});
+                });
+            },
+
+            getFormattedDate: function(unixtime, format) {
+                return new Date(unixtime).format(format);
+            }
+        }
+
+    });
 
 })(jQuery);

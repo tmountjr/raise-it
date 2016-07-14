@@ -1,4 +1,4 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 	<head>
 		<meta charset="utf-8">
@@ -26,7 +26,7 @@
 			
 			<div id="login-form">
 				<div class="row">
-					<div v-bind:class="narrowMiddle">
+					<div class="col-md-4 col-md-offset-4 col-sm-12">
 						<form class="form" action="done.html" @submit.prevent="joinRoom">
 							<div class="form-group">
 								<label for="inputRoom">Room ID:</label>
@@ -47,7 +47,7 @@
 				<h2 class="text-center">You are in room "{{ joinSubmission.room }}"</h2>
 
 				<div id="hand-action" class="row">
-					<div v-bind:class="narrowMiddle">
+					<div class="col-md-4 col-md-offset-4 col-sm-12">
 						<div class="col-xs-6 text-center">
 							<a @click="doRaiseHand"><i class="fa fa-question-circle"></i></a>
 							<p>Raise Hand</p>
@@ -59,7 +59,7 @@
 					</div>
 				</div>
 				<div id="waiting" class="row">
-					<div v-bind:class="narrowMiddle">
+					<div class="col-md-4 col-md-offset-4 col-sm-12">
 						<div class="panel panel-primary" id="people">
 							<div class="panel-heading">Current Participants</div>
 							<div class="panel-body">
@@ -85,7 +85,7 @@
 					</div>
 				</div>
 				<div class="row">
-					<div v-bind:class="narrowMiddle">
+					<div class="col-md-4 col-md-offset-4 col-sm-12">
 						<button class="btn btn-primary btn-block" @click="leaveRoom">Leave Room</button>
 					</div>
 				</div>
@@ -113,7 +113,7 @@
 		<script src="http://cdnjs.cloudflare.com/ajax/libs/vue/1.0.16/vue.js"></script>
 
 		<!-- firebase -->
-		<script src="https://cdn.firebase.com/js/client/2.4.1/firebase.js"></script>
+		<script src="https://www.gstatic.com/firebasejs/3.0.4/firebase.js"></script>
 
 		<!-- app -->
 		<script src="app.js"></script>
